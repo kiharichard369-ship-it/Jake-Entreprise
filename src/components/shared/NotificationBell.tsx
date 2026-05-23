@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Bell, X, CheckCheck, Package, RotateCcw, AlertCircle, DollarSign, Truck, ShoppingBag, TrendingDown } from 'lucide-react';
 import { useNotifications, Notification } from '../../lib/hooks';
 import { useNavigate } from 'react-router-dom';
