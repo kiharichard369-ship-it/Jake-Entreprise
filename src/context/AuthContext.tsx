@@ -52,17 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // 1. Check existing session on mount
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      if (session?.user) {
-        setUser(session.user);
-        await loadProfile(session.user);
-      }
-      if (mounted) setIsLoading(false);
-    });
-
-    // 2. Listen for auth changes (sign-in, sign-out, token refresh)
+    // onAuthStateChange fires INITIAL_SESSION on mount — use that as the
+    // single source of truth so we never race between getSession + the listener.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
@@ -75,11 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED all have a user
+        if (session?.user) {
           setUser(session.user);
           await loadProfile(session.user);
           if (mounted) setIsLoading(false);
+          return;
         }
+
+        // Catch-all — should never reach here, but ensures spinner always stops
+        if (mounted) setIsLoading(false);
       }
     );
 
