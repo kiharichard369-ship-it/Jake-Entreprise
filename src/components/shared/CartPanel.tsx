@@ -28,6 +28,7 @@ export function CartPanel({ items, discounts, onUpdateQty, onRemove, onCheckout,
   const [selectedDiscount, setSelectedDiscount] = useState<string | null>(null);
   const [creditApplied, setCreditApplied] = useState(0);
   const [showPayment, setShowPayment] = useState(false);
+  
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [cashTendered, setCashTendered] = useState('');
 
