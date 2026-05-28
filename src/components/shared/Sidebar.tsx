@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard, ShoppingCart, Package, TrendingUp, Users, Truck,
   Settings, LogOut, Menu, X, ChevronRight, Droplets, Flame,
-  MapPin, CreditCard, FileText, AlertCircle, DollarSign, RotateCcw
+  MapPin, CreditCard, FileText, AlertCircle, DollarSign, RotateCcw, Building2
 } from 'lucide-react';
 
 interface NavItem { label: string; path: string; icon: React.ReactNode; }
@@ -16,6 +16,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: 'Price Management', path: '/super-admin/prices',          icon: <DollarSign size={18}/> },
     { label: 'User Management',  path: '/super-admin/users',           icon: <Users size={18}/> },
     { label: 'Debt Overview',    path: '/super-admin/debts',           icon: <AlertCircle size={18}/> },
+    { label: 'Branches',          path: '/super-admin/branches',         icon: <Building2 size={18}/> },
     { label: 'Payment Config',   path: '/super-admin/payment-config',  icon: <CreditCard size={18}/> },
   ],
   water_admin: [

@@ -13,6 +13,7 @@ import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import UserManagementPage from './pages/superadmin/UserManagementPage';
 import PaymentConfigPage from './pages/superadmin/PaymentConfigPage';
 import CrossBusinessPricePage from './pages/superadmin/CrossBusinessPricePage';
+import BranchManagementPage from './pages/superadmin/BranchManagementPage';
 
 // Water Retail
 import WaterAdminDashboard from './pages/water/WaterAdminDashboard';
@@ -44,7 +45,7 @@ import RevenuePage from './pages/shared/RevenuePage';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
         <Routes>
@@ -55,6 +56,7 @@ function App() {
             {/* ── Super Admin ── */}
             <Route path="/super-admin/dashboard"      element={<RoleGuard allowedRoles={['super_admin']}><SuperAdminDashboard /></RoleGuard>} />
             <Route path="/super-admin/users"          element={<RoleGuard allowedRoles={['super_admin']}><UserManagementPage /></RoleGuard>} />
+            <Route path="/super-admin/branches"       element={<RoleGuard allowedRoles={['super_admin']}><BranchManagementPage /></RoleGuard>} />
             <Route path="/super-admin/payment-config" element={<RoleGuard allowedRoles={['super_admin']}><PaymentConfigPage /></RoleGuard>} />
             <Route path="/super-admin/prices"         element={<RoleGuard allowedRoles={['super_admin']}><CrossBusinessPricePage /></RoleGuard>} />
             <Route path="/super-admin/revenue"        element={<RoleGuard allowedRoles={['super_admin']}><RevenuePage business="water_retail" /></RoleGuard>} />

@@ -22,7 +22,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .maybeSingle(); // maybeSingle returns null (not error) when row missing
+    .maybeSingle();
   if (error) {
     console.error('[AuthContext] fetchProfile error:', error.message, error.code);
     return null;
@@ -31,19 +31,18 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser]               = useState<User | null>(null);
-  const [profile, setProfile]         = useState<Profile | null>(null);
-  const [isLoading, setIsLoading]     = useState(true);
+  const [user, setUser]                 = useState<User | null>(null);
+  const [profile, setProfile]           = useState<Profile | null>(null);
+  const [isLoading, setIsLoading]       = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
 
   const loadProfile = async (u: User) => {
     setProfileError(null);
     const p = await fetchProfile(u.id);
     if (!p) {
-      // Profile row missing — surface a clear error instead of infinite load
       setProfileError(
         `No profile found for this account. ` +
-        `Please ask your administrator to create a profile row in the profiles table for user ID: ${u.id}`
+        `Ask your administrator to create a profile row for user ID: ${u.id}`
       );
     }
     setProfile(p);
@@ -52,8 +51,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // onAuthStateChange fires INITIAL_SESSION on mount — use that as the
-    // single source of truth so we never race between getSession + the listener.
+    // ── FIX: getSession() first, then subscribe ──────────────────────────
+    // onAuthStateChange alone does NOT reliably fire INITIAL_SESSION when
+    // there is no stored session — getSession() guarantees the spinner
+    // always resolves, even when the user is completely logged out.
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+
+      if (session?.user) {
+        setUser(session.user);
+        await loadProfile(session.user);
+      }
+
+      // Always stop the spinner after getSession resolves
+      if (mounted) setIsLoading(false);
+    });
+
+    // ── Listener handles changes AFTER initial load ───────────────────────
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
@@ -62,20 +76,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           setProfile(null);
           setProfileError(null);
-          setIsLoading(false);
+          // Don't touch isLoading here — getSession already handled it
           return;
         }
 
-        // INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED all have a user
-        if (session?.user) {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setUser(session.user);
           await loadProfile(session.user);
           if (mounted) setIsLoading(false);
-          return;
         }
-
-        // Catch-all — should never reach here, but ensures spinner always stops
-        if (mounted) setIsLoading(false);
       }
     );
 
@@ -92,9 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return { error };
     }
-    // onAuthStateChange will handle setting user + profile + isLoading=false
-    // But set user immediately so UI doesn't flicker
     if (data.user) setUser(data.user);
+    // onAuthStateChange SIGNED_IN will fire and set isLoading=false
     return { error: null };
   };
 
@@ -117,9 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       user,
       profile,
-      role: profile?.role ?? null,
+      role:       profile?.role       ?? null,
       businessId: profile?.business_id ?? null,
-      shopId: profile?.shop_id ?? null,
+      shopId:     profile?.shop_id     ?? null,
       isLoading,
       profileError,
       signIn,

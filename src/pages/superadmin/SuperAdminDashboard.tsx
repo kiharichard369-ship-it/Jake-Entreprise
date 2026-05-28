@@ -358,7 +358,7 @@ export default function SuperAdminDashboard() {
         <h2 className="text-lg font-black text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Add Branch',  icon: '🏪', path: '/super-admin/users',          color: 'bg-blue-50 hover:bg-blue-100 text-blue-800' },
+            { label: 'Add Branch',  icon: '🏪', path: '/super-admin/branches',          color: 'bg-blue-50 hover:bg-blue-100 text-blue-800' },
             { label: 'Create User', icon: '👤', path: '/super-admin/users',          color: 'bg-purple-50 hover:bg-purple-100 text-purple-800' },
             { label: 'Edit Prices', icon: '💰', path: '/super-admin/prices',         color: 'bg-amber-50 hover:bg-amber-100 text-amber-800' },
             { label: 'GPS Map',     icon: '🗺️', path: '/water/driver/gps',          color: 'bg-green-50 hover:bg-green-100 text-green-800' },
